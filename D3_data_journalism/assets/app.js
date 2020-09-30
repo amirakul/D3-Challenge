@@ -13,8 +13,7 @@ var height = svgHeight - margin.top - margin.bottom;
 
 // Create an SVG wrapper, append an SVG group that will hold our chart,
 // and shift the latter by left and top margins.
-var svg = d3
-  .select(".chart")
+var svg = d3.select(".chart")
   .append("svg")
   .attr("width", svgWidth)
   .attr("height", svgHeight);
@@ -70,7 +69,7 @@ function updateToolTip(chosenXAxis, circlesGroup) {
     label = "Poverty Level:";
   }
   else {
-    label = "Age (Median)";
+    label = "Age (Median):";
   }
 
   var toolTip = d3.tip()
@@ -94,7 +93,7 @@ function updateToolTip(chosenXAxis, circlesGroup) {
 }
 
 // Retrieve data from the CSV file and execute everything below
-d3.csv("assets/data/censusData.csv").then(function(censusData, err) {
+d3.csv("censusData.csv").then(function(censusData, err) {
   if (err) throw err;
 
   // parse data
@@ -134,9 +133,10 @@ d3.csv("assets/data/censusData.csv").then(function(censusData, err) {
     .append("circle")
     .attr("cx", d => xLinearScale(d[chosenXAxis]))
     .attr("cy", d => yLinearScale(d.healthcare))
-    .attr("r", 20)
-    .attr("fill", "pink")
-    .attr("opacity", ".5");
+    .attr("r", 10)
+    // .attr("fill", "pink")
+    .classed("stateCircle",true)
+    // .attr("opacity", ".5");
 
   // Create group for two x-axis labels
   var labelsGroup = chartGroup.append("g")
@@ -203,15 +203,14 @@ d3.csv("assets/data/censusData.csv").then(function(censusData, err) {
             .classed("inactive", true);
         }
         else {
-          ageLabel
+          povertyLabel
             .classed("active", false)
             .classed("inactive", true);
-          povertyLabel
+          ageLabel
             .classed("active", true)
             .classed("inactive", false);
         }
       }
     });
 }).catch(function(error) {
-  console.log(error);
-});
+  console.log(error);});
