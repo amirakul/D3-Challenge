@@ -13,7 +13,7 @@ var height = svgHeight - margin.top - margin.bottom;
 
 // Create an SVG wrapper, append an SVG group that will hold our chart,
 // and shift the latter by left and top margins.
-var svg = d3.select(".chart")
+var svg = d3.select("#scatter")
   .append("svg")
   .attr("width", svgWidth)
   .attr("height", svgHeight);
@@ -58,6 +58,15 @@ function renderCircles(circlesGroup, newXScale, chosenXAxis) {
     .attr("cx", d => newXScale(d[chosenXAxis]));
 
   return circlesGroup;
+}
+
+function renderCirclesText(textGroup, newXScale, chosenXAxis) {
+
+  textGroup.transition()
+    .duration(1000)
+    .attr("x", d => newXScale(d[chosenXAxis]));
+
+  return textGroup;
 }
 
 // function used for updating circles group with new tooltip
@@ -133,10 +142,19 @@ d3.csv("censusData.csv").then(function(censusData, err) {
     .append("circle")
     .attr("cx", d => xLinearScale(d[chosenXAxis]))
     .attr("cy", d => yLinearScale(d.healthcare))
-    .attr("r", 10)
+    .attr("r", 15)
     // .attr("fill", "pink")
     .classed("stateCircle",true)
     // .attr("opacity", ".5");
+  
+  var textGroup = chartGroup.selectAll("text.stateText")
+    .data(censusData)
+    .enter()
+    .append("text")
+    .attr("x", d => xLinearScale(d[chosenXAxis]))
+    .attr("y", d => yLinearScale(d.healthcare)+6)
+    .classed("stateText",true)
+    .text(d=>d.abbr); 
 
   // Create group for two x-axis labels
   var labelsGroup = chartGroup.append("g")
@@ -166,7 +184,7 @@ d3.csv("censusData.csv").then(function(censusData, err) {
     .text("Lacks Healthcare (%)");
 
   // updateToolTip function above csv import
-  var circlesGroup = updateToolTip(chosenXAxis, circlesGroup);
+  // var circlesGroup = updateToolTip(chosenXAxis, circlesGroup);
 
   // x axis labels event listener
   labelsGroup.selectAll("text")
@@ -189,9 +207,9 @@ d3.csv("censusData.csv").then(function(censusData, err) {
 
         // updates circles with new x values
         circlesGroup = renderCircles(circlesGroup, xLinearScale, chosenXAxis);
-
+        textGroup = renderCirclesText(textGroup, xLinearScale, chosenXAxis);
         // updates tooltips with new info
-        circlesGroup = updateToolTip(chosenXAxis, circlesGroup);
+        // circlesGroup = updateToolTip(chosenXAxis, circlesGroup);
 
         // changes classes to change bold text
         if (chosenXAxis === "poverty") {
