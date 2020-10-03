@@ -105,7 +105,7 @@ function loadChart() {
       .attr("class", "tooltip")
       .offset([80, -60])
       .html(function(d) {
-        return (`${d.healthcare}<br>${label} ${d[chosenXAxis]}`);
+        return (`${d.smokes}<br>${label} ${d[chosenXAxis]}`);
       });
 
     circlesGroup.call(toolTip);
