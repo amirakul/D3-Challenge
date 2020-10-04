@@ -1,29 +1,21 @@
-d3.select(window).on("resize", handleResize);
-
-// When the browser loads, loadChart() is called
-loadChart();
-
-function handleResize() {
-  var svgArea = d3.select("svg");
-
-  // If there is already an svg container on the page, remove it and reload the chart
+//Create function make responsive 
+function makeResponsive() {
+  // if the SVG area isn't empty when the browser loads, remove it
+  // and replace it with a resized version of the chart
+  var svgArea = d3.select("body").select("svg");
   if (!svgArea.empty()) {
     svgArea.remove();
-    loadChart();
   }
-}
-
-function loadChart() {
   //Making width and height of the graph responsive
-  var svgWidth = window.innerWidth;
-  var svgHeight = window.innerHeight;
+  var svgWidth = window.innerWidth -350;
+  var svgHeight = window.innerHeight-350;
 
   // var svgWidth = 960;
   // var svgHeight = 500;
   //Set up the margins around graph
   var margin = {
     top: 20,
-    right: 40,
+    right: 30,
     bottom: 80,
     left: 100
   };
@@ -92,35 +84,32 @@ function loadChart() {
   // function used for updating circles group with new tooltip
   function updateToolTip(chosenXAxis, circlesGroup) {
 
-    var label;
+    // var label;
 
     if (chosenXAxis === "poverty") {
-      label = "Poverty Level:";
+      var label = "Poverty Level:";
+    }
+    else if (chosenXAxis === "income") {
+      var label = "Average Income: $";
     }
     else {
       label = "Age (Median):";
     }
 
     var toolTip = d3.tip()
-      .attr("class", "tooltip")
-      .offset([80, -60])
+      .attr("class", "d3-tip")
+      .offset([-8, 0])
       .html(function(d) {
-        return (`${d.smokes}<br>${label} ${d[chosenXAxis]}`);
+        return (`State: ${d.state}<br>${label} ${d[chosenXAxis]}`);
       });
 
     circlesGroup.call(toolTip);
 
-    circlesGroup.on("mouseover", function(data) {
-      toolTip.show(data);
-    })
-      // onmouseout event
-      .on("mouseout", function(data, index) {
-        toolTip.hide(data);
-      });
-
-    return circlesGroup;
+    circlesGroup.on("mouseover", toolTip.show)
+        .on("mouseout", toolTip.hide);
+        return circlesGroup;
   }
-
+  
   // Retrieve data from the CSV file and execute everything below
   d3.csv("censusData.csv").then(function(censusData, err) {
     if (err) throw err;
@@ -129,7 +118,7 @@ function loadChart() {
     censusData.forEach(function(data) {
       data.poverty = +data.poverty;
       data.age = +data.age;
-      data.healthcare = +data.healthcare;
+      data.income = +data.income;
       data.smokes = +data.smokes;
     });
 
@@ -162,37 +151,53 @@ function loadChart() {
       .append("circle")
       .attr("cx", d => xLinearScale(d[chosenXAxis]))
       .attr("cy", d => yLinearScale(d.smokes))
-      .attr("r", 15)
-      // .attr("fill", "pink")
-      .classed("stateCircle",true)
-      // .attr("opacity", ".5");
-    
-    var textGroup = chartGroup.selectAll("text.stateText")
+      .attr("r", 12)
+      .classed("stateCircle",true);
+      
+      
+    //append initial state or text
+    var textGroup = chartGroup.selectAll(".stateText")
       .data(censusData)
       .enter()
       .append("text")
       .attr("x", d => xLinearScale(d[chosenXAxis]))
       .attr("y", d => yLinearScale(d.smokes)+6)
       .classed("stateText",true)
-      .text(d=>d.abbr); 
+      .attr("font-size", "10px")
+      .attr("dy",3)
+      .text(d=>d.abbr);
+       
 
-    // Create group for two x-axis labels
+    // Create group for three x-axis labels
     var labelsGroup = chartGroup.append("g")
       .attr("transform", `translate(${width / 2}, ${height + 20})`);
 
     var povertyLabel = labelsGroup.append("text")
+      .classed("aText", true)
+      .classed("active", true)
       .attr("x", 0)
       .attr("y", 20)
       .attr("value", "poverty") // value to grab for event listener
-      .classed("active", true)
+      // .classed("active", true)
       .text("In Poverty (%)");
 
     var ageLabel = labelsGroup.append("text")
+      .classed("aText", true)
+      .classed("inactive", true)  
       .attr("x", 0)
       .attr("y", 40)
       .attr("value", "age") // value to grab for event listener
-      .classed("inactive", true)
+      // .classed("inactive", true)
       .text("Age (median)");
+    
+    var incomeLabel = labelsGroup.append("text")
+      .classed("aText", true)
+      .classed("inactive", true)  
+      .attr("x", 0)
+      .attr("y", 60)
+      .attr("value", "income") // value to grab for event listener
+      // .classed("inactive", true)
+      .text("Household Income (Median)");
 
     // append y axis
     chartGroup.append("text")
@@ -201,8 +206,9 @@ function loadChart() {
       .attr("x", 0 - (height / 2))
       .attr("dy", "1em")
       .classed("axis-text", true)
-      .text("Smokes (%)");
+      .text("Smoker (%)");
 
+    circlesGroup = updateToolTip(chosenXAxis, circlesGroup);
     
 
     // x axis labels event listener
@@ -226,8 +232,10 @@ function loadChart() {
 
           // updates circles with new x values
           circlesGroup = renderCircles(circlesGroup, xLinearScale, chosenXAxis);
+          //update circles text with new state names
           textGroup = renderCirclesText(textGroup, xLinearScale, chosenXAxis);
-          
+          //update tooltip
+          circlesGroup = updateToolTip(chosenXAxis, circlesGroup);
 
           // changes classes to change bold text
           if (chosenXAxis === "poverty") {
@@ -237,17 +245,36 @@ function loadChart() {
             ageLabel
               .classed("active", false)
               .classed("inactive", true);
+            incomeLabel
+              .classed("active", false)
+              .classed("inactive", true); 
           }
-          else {
+          else if (chosenXAxis === "age"){
             povertyLabel
               .classed("active", false)
               .classed("inactive", true);
             ageLabel
               .classed("active", true)
               .classed("inactive", false);
+            incomeLabel
+              .classed("active", false)
+              .classed("inactive", true);
+          }
+          else {
+            povertyLabel
+              .classed("active", false)
+              .classed("inactive", true);
+            ageLabel
+              .classed("active", false)
+              .classed("inactive", true);
+            incomeLabel
+              .classed("active",true)
+              .classed("inactive", false); 
           }
         }
       });
   }).catch(function(error) {
     console.log(error);});
-}    
+}
+makeResponsive();
+d3.select(window).on("resize", makeResponsive);    
