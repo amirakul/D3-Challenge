@@ -25,4 +25,7 @@ Here are the screenshots of how these scatterplots look like:
 
 ![ChartA](D3_data_journalism/Images/Chart1.png)
 
+### 2. Relationship between lack of healthcare and median age level across United States
+
+![ChartB](D3_data_journalism/Images/Chart2.png)
 
