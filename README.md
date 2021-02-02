@@ -19,7 +19,10 @@ The scatterplot includes the following:
 
 * Create and situate your axes and labels to the left and bottom of the chart.
 
-* Below each  
+* Below each scatterplot, I have included a summary of my observation.
 
+Here are the screenshots of how these scatterplots look like:
+
+![ChartA](D3_data_journalism/Images/Chart1.png)
 
 
