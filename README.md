@@ -5,8 +5,6 @@
 # D3-Challenge
 ## Tasks to Complete:
 
-
-![ChartA](D3_data_journalism/Images/Chart 1.png)
 ![ChartB](D3_data_journalism/Images/Chart 2.png)
 
 I wanted to analyze the relationship between some factors given in the dataset. Specifically, I wanted to see how  scatter plots between two of the data variables such as `Healthcare vs. Poverty` and `Lack of Healthcare vs. Age` looks like.
@@ -22,6 +20,8 @@ The scatterplot includes the following:
 * Below each scatterplot, I have included a summary of my observation.
 
 Here are the screenshots of how these scatterplots look like:
+
+### 1. Relationship between lack of healthcare and poverty level across United States
 
 ![ChartA](D3_data_journalism/Images/Chart1.png)
 
